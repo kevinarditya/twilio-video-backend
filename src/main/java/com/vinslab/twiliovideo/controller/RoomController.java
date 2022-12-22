@@ -1,6 +1,6 @@
 package com.vinslab.twiliovideo.controller;
 
-import com.vinslab.twiliovideo.model.AccesssRoomDTO;
+import com.vinslab.twiliovideo.model.RoomDTO;
 import com.vinslab.twiliovideo.service.RoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +15,8 @@ public class RoomController {
     }
 
     @PostMapping("/room")
-    public ResponseEntity<AccesssRoomDTO> createRoom() {
-        AccesssRoomDTO accessRoom = roomService.createRoom();
+    public ResponseEntity<RoomDTO> createRoom() {
+        RoomDTO accessRoom = roomService.createRoom();
 
         return ResponseEntity.ok().body(accessRoom);
     }

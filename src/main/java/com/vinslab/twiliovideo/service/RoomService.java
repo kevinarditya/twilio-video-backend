@@ -2,7 +2,9 @@ package com.vinslab.twiliovideo.service;
 
 import com.twilio.jwt.accesstoken.AccessToken;
 import com.twilio.jwt.accesstoken.VideoGrant;
-import com.vinslab.twiliovideo.model.AccesssRoomDTO;
+import com.vinslab.twiliovideo.model.Room;
+import com.vinslab.twiliovideo.model.RoomDTO;
+import com.vinslab.twiliovideo.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +21,16 @@ public class RoomService {
     @Value("${twilio.api-secret}")
     private String twilioApiSecret;
 
-    public RoomService() {
+    private final RoomRepository roomRepository;
+
+    public RoomService(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
     }
 
-    public AccesssRoomDTO createRoom() {
+    public RoomDTO createRoom() {
         String roomName = UUID.randomUUID().toString();
 
         VideoGrant videoGrant = new VideoGrant().setRoom(roomName);
-
 
         AccessToken accessToken = new AccessToken.Builder(
                 twilioAccountSid,
@@ -34,6 +38,11 @@ public class RoomService {
                 twilioApiSecret
         ).identity("identity").grant(videoGrant).build();
 
-        return new AccesssRoomDTO(roomName, accessToken.toJwt());
+        String token = accessToken.toJwt();
+
+        Room room = new Room(roomName, token);
+        roomRepository.save(room);
+
+        return new RoomDTO(roomName);
     }
 }
