@@ -2,6 +2,7 @@ package com.vinslab.twiliovideo.service;
 
 import com.twilio.jwt.accesstoken.AccessToken;
 import com.twilio.jwt.accesstoken.VideoGrant;
+import com.vinslab.twiliovideo.model.AccesssRoomDTO;
 import com.vinslab.twiliovideo.model.Room;
 import com.vinslab.twiliovideo.model.RoomDTO;
 import com.vinslab.twiliovideo.repository.RoomRepository;
@@ -44,5 +45,15 @@ public class RoomService {
         roomRepository.save(room);
 
         return new RoomDTO(roomName);
+    }
+
+    public AccesssRoomDTO getRoom(String roomName) {
+        Room room = roomRepository.findAllByName(roomName);
+
+        if (room == null) {
+            return new AccesssRoomDTO();
+        }
+
+        return new AccesssRoomDTO(room.getName(), room.getToken());
     }
 }
