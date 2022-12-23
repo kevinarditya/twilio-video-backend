@@ -1,11 +1,13 @@
 package com.vinslab.twiliovideo.service;
 
+import com.twilio.exception.ApiException;
 import com.twilio.jwt.accesstoken.AccessToken;
 import com.twilio.jwt.accesstoken.VideoGrant;
+import com.twilio.rest.video.v1.Room;
 import com.vinslab.twiliovideo.model.AccesssRoomDTO;
-import com.vinslab.twiliovideo.model.Room;
 import com.vinslab.twiliovideo.model.RoomDTO;
-import com.vinslab.twiliovideo.repository.RoomRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,38 +24,45 @@ public class RoomService {
     @Value("${twilio.api-secret}")
     private String twilioApiSecret;
 
-    private final RoomRepository roomRepository;
+    private final Logger logger;
 
-    public RoomService(RoomRepository roomRepository) {
-        this.roomRepository = roomRepository;
+    public RoomService() {
+        this.logger = LoggerFactory.getLogger(RoomService.class);
     }
 
     public RoomDTO createRoom() {
         String roomName = UUID.randomUUID().toString();
 
-        VideoGrant videoGrant = new VideoGrant().setRoom(roomName);
-
-        AccessToken accessToken = new AccessToken.Builder(
-                twilioAccountSid,
-                twilioApiKey,
-                twilioApiSecret
-        ).identity("identity").grant(videoGrant).build();
-
-        String token = accessToken.toJwt();
-
-        Room room = new Room(roomName, token);
-        roomRepository.save(room);
+        try{
+            Room.fetcher(roomName).fetch();
+        } catch(ApiException error) {
+            logger.info("Create Room {}", roomName);
+            Room.creator().setUniqueName(roomName).create();
+        }
 
         return new RoomDTO(roomName);
     }
 
-    public AccesssRoomDTO getRoom(String roomName) {
-        Room room = roomRepository.findAllByName(roomName);
+    public AccesssRoomDTO getRoom(String roomName, String username) {
+        try {
+            Room.fetcher(roomName).fetch();
 
-        if (room == null) {
+            VideoGrant videoGrant = new VideoGrant().setRoom(roomName);
+
+            AccessToken accessToken = new AccessToken.Builder(
+                    twilioAccountSid,
+                    twilioApiKey,
+                    twilioApiSecret
+            ).identity(username).grant(videoGrant).build();
+
+            String token = accessToken.toJwt();
+
+            logger.info("Generate token for username {} in room {}", username, roomName);
+
+            return new AccesssRoomDTO(roomName, token);
+        } catch(ApiException error) {
+            logger.info("Room Not Found");
             return new AccesssRoomDTO();
         }
-
-        return new AccesssRoomDTO(room.getName(), room.getToken());
     }
 }

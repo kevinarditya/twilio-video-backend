@@ -1,16 +1,9 @@
 twilio:
   account-sid: ${TWILIO_ACCOUNT_SID}
+  auth-token: ${TWILIO_AUTH_TOKEN}
   api-key: ${TWILIO_API_KEY}
   api-secret: ${TWILIO_API_SECRET}
 
 spring:
 #  main:
 #    banner-mode: off
-  datasource:
-    platform: postgresql
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/video_call
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update

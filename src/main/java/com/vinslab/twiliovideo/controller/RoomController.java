@@ -22,8 +22,8 @@ public class RoomController {
     }
 
     @GetMapping("/room/{roomName}")
-    public ResponseEntity<AccesssRoomDTO> getRoom(@PathVariable String roomName) {
-        AccesssRoomDTO accessRoom = roomService.getRoom(roomName);
+    public ResponseEntity<AccesssRoomDTO> getRoom(@PathVariable String roomName, @RequestParam String username) {
+        AccesssRoomDTO accessRoom = roomService.getRoom(roomName, username);
 
         if (accessRoom.getRoomName() == null) {
             return ResponseEntity.notFound().build();
