@@ -43,26 +43,38 @@ public class RoomService {
         return new RoomDTO(roomName);
     }
 
-    public AccesssRoomDTO getRoom(String roomName, String username) {
+    public RoomDTO getRoom(String roomName) {
         try {
             Room.fetcher(roomName).fetch();
 
-            VideoGrant videoGrant = new VideoGrant().setRoom(roomName);
+            logger.info("Room {} Available", roomName);
 
-            AccessToken accessToken = new AccessToken.Builder(
-                    twilioAccountSid,
-                    twilioApiKey,
-                    twilioApiSecret
-            ).identity(username).grant(videoGrant).build();
-
-            String token = accessToken.toJwt();
-
-            logger.info("Generate token for username {} in room {}", username, roomName);
-
-            return new AccesssRoomDTO(roomName, token);
+            return new RoomDTO(roomName);
         } catch(ApiException error) {
             logger.info("Room Not Found");
+            return new RoomDTO();
+        }
+    }
+
+    public AccesssRoomDTO join(String roomName, String username) {
+        RoomDTO roomDTO = this.getRoom(roomName);
+
+        if (roomDTO.getRoomName() == null) {
             return new AccesssRoomDTO();
         }
+
+        VideoGrant videoGrant = new VideoGrant().setRoom(roomName);
+
+        AccessToken accessToken = new AccessToken.Builder(
+                twilioAccountSid,
+                twilioApiKey,
+                twilioApiSecret
+        ).identity(username).grant(videoGrant).build();
+
+        String token = accessToken.toJwt();
+
+        logger.info("Generate token for username {} in room {}", username, roomName);
+
+        return new AccesssRoomDTO(roomName, token);
     }
 }
