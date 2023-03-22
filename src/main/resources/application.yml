@@ -4,6 +4,8 @@ twilio:
   api-key: ${TWILIO_API_KEY}
   api-secret: ${TWILIO_API_SECRET}
 
-spring:
-#  main:
-#    banner-mode: off
+minio:
+  url: ${MINIO_URL}
+  access:
+    key: ${MINIO_ACCESS_KEY}
+    secret: ${MINIO_ACCESS_SECRET}
